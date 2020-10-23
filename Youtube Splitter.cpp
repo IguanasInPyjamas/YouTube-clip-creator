@@ -5,19 +5,18 @@
 #include <algorithm>
 #include <cinttypes>
 #include <sstream>
-#include <unistd.h>
 #include <cstdio>
 #include <array>
-using namespace std;
+#include <cstring>
 
 std::string youtube_dl_caller(std::string URL){
-    FILE * stream = NULL;
+    FILE* stream = NULL;
     std::string youtube_dl_command, results;
     std::array<char, 5> buffer;
     
     youtube_dl_command = "youtube-dl -g " + URL ;
     char command[youtube_dl_command.size() + 1];
-    strcpy(command, youtube_dl_command.c_str());
+    std::strcpy(command, youtube_dl_command.c_str());
 
     stream = _popen(command,"r");
     while (fgets(buffer.data(), 5, stream) != nullptr){
@@ -29,10 +28,10 @@ std::string youtube_dl_caller(std::string URL){
     return results;
 }
 
-int ffmpeg_caller(std::vector<std::string> streamURLs, std::string timeStart, std::string duration ){
-    auto videoStream = streamURLs.at(0);
-    auto audioStream = streamURLs.at(1);
-    std::string command = "ffmpeg -ss " + timeStart + " -i \"" + videoStream + "\" -ss " + timeStart + " -i \"" + audioStream + "\" -t " + duration + " -map 0:v -map 1:a -c:v libx264 -c:a aac output.mkv";
+int ffmpeg_caller(std::vector<std::string> streamURLs, std::string time_start, std::string duration ){
+    auto video_stream = streamURLs.at(0);
+    auto audio_stream = streamURLs.at(1);
+    std::string command = "ffmpeg -ss " + time_start + " -i \"" + video_stream + "\" -ss " + time_start + " -i \"" + audio_stream + "\" -t " + duration + " -map 0:v -map 1:a -c:v libx264 -c:a aac output.mkv";
     system(command.c_str());
     return 0;
 }
@@ -40,30 +39,29 @@ int ffmpeg_caller(std::vector<std::string> streamURLs, std::string timeStart, st
 
 int main(){
     int i;
-    std::string youtubeURL,timeStart,durationToEnd,youtube_dl_command,results;
+    std::string youtubeURL,time_start,duration_to_end,youtube_dl_command,results;
     std::vector<std::string> output;
     
-    cout << "Enter the youtube URL:" << endl;
-    cin >> youtubeURL;
+    std::cout << "Enter the youtube URL:" << std::endl;
+    std::cin >> youtubeURL;
 
-    cout<< "Time for clip start (HH,MM,SS,MSMS): " << endl;
-    cin >> timeStart;
+    std::cout<< "Time for clip start (HH:MM:SS.MSMS): " << std::endl;
+    std::cin >> time_start;
 
-    cout << "Duration of clip (HH,MM,SS,MSMS)" << endl;
-    cin >> durationToEnd;
+    std::cout << "Duration of clip (HH:MM:SS.MSMS)" << std::endl;
+    std::cin >> duration_to_end;
 
-    std::string youtubeCaller = youtube_dl_caller(youtubeURL);
+    std::string youtube_caller = youtube_dl_caller(youtubeURL);
     std::vector<std::string> storage;
-    stringstream ss(youtubeCaller);
+    std::stringstream ss(youtube_caller);
     
     while(ss.good()){
-        std::string SingleLine;
-        getline(ss,SingleLine,'\n');
-        output.push_back(SingleLine);
+        std::string single_line;
+        getline(ss,single_line,'\n');
+        output.push_back(single_line);
     }
 
-    int a = ffmpeg_caller(output, timeStart, durationToEnd);
-    cout << "Command has finished, press any key to leave";
-    cin >> i;
+    int a = ffmpeg_caller(output, time_start, duration_to_end);
+    std::cout << "Command has finished, press any key to leave";
+    std::cin >> i;
 }
-
